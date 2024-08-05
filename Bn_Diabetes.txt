@@ -1,0 +1,53 @@
+import numpy as np
+import pandas as pd
+from pgmpy.models import BayesianNetwork
+from pgmpy.estimators import MaximumLikelihoodEstimator
+from pgmpy.inference import VariableElimination
+
+heartDisease = pd.read_csv('datasets/pima-indians.csv', names=['preg', 'glucose', 'bp', 'skinthick', 'insulin', 'bmi', 'diapedigree', 'age', 'class'])
+print(heartDisease.head())
+
+model = BayesianNetwork([
+    ('preg', 'glucose'), 
+    ('bp', 'skinthick'), 
+    ('insulin', 'bmi'), 
+    ('bmi', 'diapedigree'), 
+    ('age', 'class'), 
+    ('insulin', 'class')
+])
+
+model.fit(heartDisease, estimator=MaximumLikelihoodEstimator)
+
+heart_infer = VariableElimination(model)
+print("Probability of heart disease given age = 28\n")
+q = heart_infer.query(variables=['class'], evidence={'age': 28})
+print(q)
+
+print("Probability of heart disease given insulin = 60\n")
+q = heart_infer.query(variables=['class'], evidence={'insulin': 60})
+print(q)
+
+
+# import pandas as pd
+# from pgmpy.models import BayesianNetwork
+# from pgmpy.estimators import MaximumLikelihoodEstimator
+# from pgmpy.inference import VariableElimination
+
+# heartDisease = pd.read_csv("heart.csv")
+
+# print('Sample instances from the dataset are given below')
+# print(heartDisease.head())
+
+# model = BayesianNetwork([('age', 'target'), ('sex', 'target'), ('cp', 'target'), ('exang', 'target'), ('target', 'chol'), ('target', 'restecg')])
+
+# model.fit(heartDisease, estimator=MaximumLikelihoodEstimator)
+
+# HeartDiseasetest_infer = VariableElimination(model)
+
+# print('\n1. Probability of HeartDisease given evidence = age')
+# q1 = HeartDiseasetest_infer.query(variables=['target'], evidence={'age': 37})
+# print(q1)
+
+# print('\n2. Probability of HeartDisease given evidence = chol')
+# q2 = HeartDiseasetest_infer.query(variables=['target'], evidence={'chol': 233})
+# print(q2)
